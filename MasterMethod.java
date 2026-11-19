@@ -1,19 +1,48 @@
+import java.util.Scanner;
+
 public class MasterMethod {
-   public static void main(String[] args) {
-       int a = 2, b = 2, d = 1;
-       long start = System.nanoTime();
-       double c = Math.log(a) / Math.log(b);
-       System.out.println("Recurrence: T(n) = " + a + "T(n/" + b + ") + n^" + d);
-       System.out.println("log_b(a) = " + c);
-       if (Math.abs(d - c) < 1e-9)
-           System.out.println("Case 2: T(n) = Theta(n^" + d + " log n)");
-       else if (d < c)
-           System.out.println("Case 1: T(n) = Theta(n^" + c + ")");
-       else
-           System.out.println("Case 3: T(n) = Theta(n^" + d + ")");
-       long end = System.nanoTime();
-       System.out.println("Execution Time: " + (end - start) + " ns");
-       System.out.println("Time Complexity: O(1)");
-       System.out.println("Space Complexity: O(1)");
-   }
+    public static void m(int a, int b, int f) {
+    }
+
+    public static void main(String args[]) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the value of a: ");
+        int a = sc.nextInt();
+        System.out.println("Enter the value of b: ");
+        int b = sc.nextInt();
+        System.out.println("Enter the value of k in f(n): cn^k");
+        double k = sc.nextDouble();
+        int c = 1;
+        double logBA = Math.log(a) / Math.log(b);
+
+        System.out.println("\nRecurrence");
+        System.out.println("T(n) = " + a + " * " + "T(n/ " + b + ") + n^" + k);
+
+        System.out.println("\nStep 1: Standard Form");
+        System.out.println("T(n) = aT(n/b) + f(n)");
+
+        System.out.println("\nStep 2: Values");
+        System.out.println("a = " + a);
+        System.out.println("b = " + b);
+        System.out.println("f(n) = n^" + k);
+
+        System.out.println("\nStep 3: Calculate n^(log b a)");
+        System.out.println("n^" + k + " = n^" + logBA);
+
+        System.out.println("\nStep 4: Comparison");
+        if (k < logBA) {
+            System.out.println("\nStep 5: Master's Theorem Case 1 applies.");
+            System.out.println("T(n) = Theta(n^" + logBA + ")");
+        } else if (k == logBA) {
+            System.out.println("\nStep 5: Master's Theorem Case 2 applies.");
+            System.out.println("T(n) = Theta(n^" + logBA + " . log n)");
+        } else {
+            if (c > 1) {
+                System.out.println("\nStep 5: Master's Theorem Case 3 applies.");
+                System.out.println("T(n) = Theta(n^" + k + ")");
+            } else {
+                System.out.println("Can't be solved by Master's Theorem");
+            }
+        }
+    }
 }
