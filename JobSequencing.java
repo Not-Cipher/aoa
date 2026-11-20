@@ -1,36 +1,103 @@
+import java.util.Arrays;
+import java.util.Scanner;
+
+class Job {
+    int id;
+    int deadline;
+    int profit;
+
+    Job(int id, int deadline, int profit) {
+        this.id = id;
+        this.deadline = deadline;
+        this.profit = profit;
+    }
+}
+
 public class JobSequencing {
-   public static void main(String[] args) {
-       int[] id = {1, 2, 3, 4, 5};
-       int[] d = {2, 1, 2, 1, 3};
-       int[] p = {100, 19, 27, 25, 15};
-       int n = id.length;
-       long start = System.nanoTime();
-       for (int i = 0; i < n - 1; i++)
-           for (int j = 0; j < n - 1 - i; j++)
-               if (p[j] < p[j + 1]) {
-                   int t = p[j]; p[j] = p[j + 1]; p[j + 1] = t;
-                   t = d[j]; d[j] = d[j + 1]; d[j + 1] = t;
-                   t = id[j]; id[j] = id[j + 1]; id[j + 1] = t;
-               }
-       int[] slot = new int[n + 1];
-       int total = 0;
-       for (int i = 0; i < n; i++) {
-           for (int j = Math.min(n, d[i]); j >= 1; j--) {
-               if (slot[j] == 0) {
-                   slot[j] = id[i];
-                   total += p[i];
-                   break;
-               }
-           }
-       }
-       long end = System.nanoTime();
-       System.out.print("Job sequence: ");
-       for (int j = 1; j <= n; j++)
-           if (slot[j] != 0) System.out.print("J" + slot[j] + " ");
-       System.out.println();
-       System.out.println("Total Profit: " + total);
-       System.out.println("Execution Time: " + (end - start) + " ns");
-       System.out.println("Time Complexity: O(n^2)");
-       System.out.println("Space Complexity: O(n)");
-   }
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of jobs: ");
+        int n = sc.nextInt();
+
+        String[] jobs = new String[n];
+        int[] deadline = new int[n];
+        int[] profit = new int[n];
+
+        System.out.println("Enter job IDs separated by spaces:");
+        for (int i = 0; i < n; i++) {
+            jobs[i] = sc.next();
+        }
+
+        System.out.println("Enter deadlines separated by spaces:");
+        for (int i = 0; i < n; i++) {
+            deadline[i] = sc.nextInt();
+        }
+
+        System.out.println("Enter profits separated by spaces:");
+        for (int i = 0; i < n; i++) {
+            profit[i] = sc.nextInt();
+        }
+
+        Job[] jobsList = new Job[n];
+        for (int i = 0; i < n; i++) {
+            int jobNumber;
+            try {
+                String jobId = jobs[i];
+                if (jobId.length() > 1
+                        && (jobId.charAt(0) == 'J' || jobId.charAt(0) == 'j')) {
+                    jobId = jobId.substring(1);
+                }
+                jobNumber = Integer.parseInt(jobId);
+            } catch (NumberFormatException e) {
+                jobNumber = i + 1;
+            }
+            jobsList[i] = new Job(jobNumber, deadline[i], profit[i]);
+        }
+
+        Arrays.sort(jobsList, (a, b) ->
+                Integer.compare(b.profit, a.profit));
+
+        int maxDeadline = 0;
+        for (int i = 0; i < n; i++) {
+            maxDeadline = Math.max(maxDeadline, jobsList[i].deadline);
+        }
+
+        String[] slots = new String[maxDeadline + 1];
+        int totalProfit = 0;
+        int jobsScheduled = 0;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = Math.min(maxDeadline, jobsList[i].deadline); j > 0; j--) {
+                if (slots[j] == null) {
+                    slots[j] = "J" + jobsList[i].id;
+                    totalProfit += jobsList[i].profit;
+                    jobsScheduled++;
+                    break;
+                }
+            }
+        }
+
+        System.out.printf("Job Schedule (  %-10s  %-6s  %-6s  ):%n",
+                "Job ID", "Deadline", "Profit");
+        for (int i = 0; i < n; i++) {
+            System.out.printf("  %-10s  %-6d  %-6d\n",
+                    "J" + jobsList[i].id,
+                    jobsList[i].deadline,
+                    jobsList[i].profit);
+        }
+
+        System.out.print("\nJob Sequence: ");
+        for (int i = 1; i <= maxDeadline; i++) {
+            if (slots[i] != null) {
+                System.out.print(slots[i] + " ");
+            }
+        }
+        System.out.println();
+
+        System.out.println("Total jobs scheduled : " + jobsScheduled);
+        System.out.println("Maximum total profit : " + totalProfit);
+
+        sc.close();
+    }
 }

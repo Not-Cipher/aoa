@@ -1,35 +1,89 @@
+import java.util.Arrays;
+import java.util.Scanner;
+
+class Product {
+    double weight;
+    double profit;
+    double ratio;
+
+    Product(double weight, double profit) {
+        this.weight = weight;
+        this.profit = profit;
+        this.ratio = profit / weight;
+    }
+}
+
 public class FractionalKnapsack {
-   public static void main(String[] args) {
-       int[] v = {60, 100, 120};
-       int[] w = {10, 20, 30};
-       int cap = 50;
-       int n = v.length;
-       long start = System.nanoTime();
-       for (int i = 0; i < n - 1; i++)
-           for (int j = 0; j < n - 1 - i; j++)
-               if (v[j] * w[j + 1] < v[j + 1] * w[j]) {
-                   int t = v[j]; v[j] = v[j + 1]; v[j + 1] = t;
-                   t = w[j]; w[j] = w[j + 1]; w[j + 1] = t;
-               }
-       double total = 0;
-       int rem = cap;
-       for (int i = 0; i < n && rem > 0; i++) {
-           if (w[i] <= rem) {
-               rem -= w[i];
-               total += v[i];
-               System.out.println("Took full item: weight " + w[i] + ", value " + v[i]);
-           } else {
-               double part = (double) rem / w[i];
-               total += v[i] * part;
-               System.out.println("Took " + part + " of item: weight " + w[i] + ", value " + v[i]);
-               rem = 0;
-           }
-       }
-       long end = System.nanoTime();
-       System.out.println("Capacity: " + cap);
-       System.out.println("Maximum Value: " + total);
-       System.out.println("Execution Time: " + (end - start) + " ns");
-       System.out.println("Time Complexity: O(n log n) with efficient sort (O(n^2) with the bubble sort used here)");
-       System.out.println("Space Complexity: O(1)");
-   }
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Vehicle capacity
+        double capacity = 50;
+        System.out.print("Enter number of products: ");
+        int n = sc.nextInt();
+        Product[] products = new Product[n];
+
+        // Input weights
+        System.out.print("Enter weights: ");
+        double[] weights = new double[n];
+        for (int i = 0; i < n; i++) {
+            weights[i] = sc.nextDouble();
+        }
+
+        // Input profits
+        System.out.print("Enter profits of products: ");
+        double[] profits = new double[n];
+        for (int i = 0; i < n; i++) {
+            profits[i] = sc.nextDouble();
+        }
+
+        for (int i = 0; i < n; i++) {
+            products[i] = new Product(weights[i], profits[i]);
+        }
+
+        Arrays.sort(products, (a, b) ->
+                Double.compare(b.ratio, a.ratio));
+
+        double remainingCapacity = capacity;
+        double totalProfit = 0;
+        double weightTaken = 0;
+
+        System.out.println("Products:");
+
+        for (int i = 0; i < n; i++) {
+            if (remainingCapacity == 0) {
+                break;
+            }
+
+            double fraction;
+
+            if (products[i].weight <= remainingCapacity) {
+                // Take complete product
+                weightTaken = products[i].weight;
+                fraction = 1.0;
+                remainingCapacity -= weightTaken;
+                totalProfit += products[i].profit;
+            } else {
+                weightTaken = remainingCapacity;
+                fraction = weightTaken / products[i].weight;
+                totalProfit += products[i].profit * fraction;
+                remainingCapacity = 0;
+            }
+
+            System.out.printf(
+                    "Weight: %.2f kg | Fraction: %.2f | Profit: %.2f\n",
+                    weightTaken, fraction, products[i].profit * fraction);
+        }
+
+        System.out.printf("Total Weight Used: %.2f kg%n",
+                capacity - remainingCapacity);
+
+        System.out.printf("Remaining Capacity: %.2f kg%n",
+                remainingCapacity);
+
+        System.out.printf("Maximum Profit: %.2f%n",
+                totalProfit);
+
+        sc.close();
+    }
 }
